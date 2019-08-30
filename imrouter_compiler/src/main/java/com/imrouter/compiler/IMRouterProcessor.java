@@ -39,9 +39,7 @@ public class IMRouterProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(Router.class);
-        Map<String, String> options = processingEnv.getOptions();
-        String packages = options.get("IMROUTER");
-
+        String packages = processingEnv.getOptions().get("IMROUTER");
         looger(packages);
 
         if (elements != null && elements.size() > 0) {
