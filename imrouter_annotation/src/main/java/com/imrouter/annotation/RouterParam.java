@@ -56,4 +56,15 @@ public class RouterParam {
     public Class<?> getTargetObject() {
         return targetObject;
     }
+
+    @Override
+    public String toString() {
+        return "RouterParam{" +
+                "routerPath='" + routerPath + '\'' +
+                ", targetSite='" + targetSite + '\'' +
+                ", targetElement=" + targetElement +
+                ", targetObject=" + targetObject +
+                ", target_type=" + target_type +
+                '}';
+    }
 }

@@ -67,6 +67,9 @@ public class IMRouterProcessor extends AbstractProcessor {
         int lastIndex = options.lastIndexOf(".");
         String packageName = options.substring(0, lastIndex);
         String className = options.substring(lastIndex + 1);
+        looger("size="+elements.size());
+
+
         if (elements != null && elements.size() > 0) {
             analyzeElementInfo(roundEnvironment, packageName, className);
             return true;

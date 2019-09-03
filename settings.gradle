@@ -1,1 +1,1 @@
-include ':app', ':imrouter_annotation', ':imrouter_compiler', ':imrouter_api'
+include ':app', ':imrouter_annotation', ':imrouter_compiler', ':imrouter_api', ':testandroid'

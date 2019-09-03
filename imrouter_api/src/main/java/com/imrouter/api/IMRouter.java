@@ -1,6 +1,7 @@
 package com.imrouter.api;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.imrouter.annotation.RouterParam;
 
@@ -33,12 +34,17 @@ public class IMRouter {
         IMRequest.getInstance().inits(application, paramMap);
     }
 
-    public void build(String path) {
-        IMRequest.getInstance().build(path);
+    public IMData build(String path) {
+        return IMRequest.getInstance().build(path);
     }
 
-    public void start(IMData imData) {
-        IMRequest.getInstance().start(imData);
+    public IMData build(Context context,String path){
+        return IMRequest.getInstance().build(context,path);
+    }
+
+
+    public void start(Context context,IMData imData) {
+        IMRequest.getInstance().start(context,imData);
     }
 
 }

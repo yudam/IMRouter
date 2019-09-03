@@ -12,7 +12,7 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = [IMROUTER:'com.imrouter.api.ImRouterIndex']
+                arguments = [IMROUTER: 'com.imrouter.api.ImRouterIndex']
             }
         }
     }
@@ -31,7 +31,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    annotationProcessor  project(path: ':imrouter_compiler')
+    annotationProcessor project(path: ':imrouter_compiler')
     implementation project(path: ':imrouter_annotation')
     implementation project(path: ':imrouter_api')
+    implementation project(path: ':testandroid')
 }
