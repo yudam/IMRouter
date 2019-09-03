@@ -3,6 +3,7 @@ package com.imrouter.compiler;
 import com.imrouter.annotation.Router;
 import com.imrouter.annotation.RouterParam;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -84,7 +85,8 @@ public class IMRouterProcessor extends AbstractProcessor {
                 //判断是否是子类型
                 int isSubType = verifyTypeMirrorType(typeElement.asType());
                 if (isSubType == -1) return;
-                RouterParam routerParam = new RouterParam(router.path(), typeElement.getQualifiedName().toString(), isSubType);
+                RouterParam routerParam = new RouterParam(router.path(), typeElement,
+                        typeElement.getQualifiedName().toString(), isSubType);
                 paramMap.put(router.path(), routerParam);
             }
         }
@@ -96,20 +98,27 @@ public class IMRouterProcessor extends AbstractProcessor {
         ClassName string = ClassName.get(String.class);
         ClassName routerparam = ClassName.get(RouterParam.class);
         ClassName map = ClassName.get(Map.class);
+        ClassName hashMap = ClassName.get(HashMap.class);
         ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(map, string, routerparam);
+
+        FieldSpec fieldSpec = FieldSpec.builder(parameterizedTypeName, "paramMap", Modifier.PUBLIC,
+                Modifier.STATIC).initializer("new $T()", hashMap).build();
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("loadInfo")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(parameterizedTypeName, "paramMap");
+                .returns(parameterizedTypeName);
 
         for (RouterParam routerParam : paramMap.values()) {
             ClassName params = ClassName.get(RouterParam.class);
-            builder.addStatement("paramMap.put($S,$T.build($S,$S,$L))", routerParam.getRouterPath(),
-                    params, routerParam.getRouterPath(), routerParam.getTargetSite(), routerParam.getTarget_type());
+            ClassName target = ClassName.get(routerParam.getTargetElement());
+            builder.addStatement("paramMap.put($S,$T.build($S,$T.class,$S,$L))", routerParam.getRouterPath(),
+                    params, routerParam.getRouterPath(), target, routerParam.getTargetSite(), routerParam.getTarget_type());
         }
 
+        builder.addStatement("return paramMap");
         TypeSpec typeSpec = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC)
+                .addField(fieldSpec)
                 .addMethod(builder.build())
                 .build();
 
