@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.imrouter.annotation.RouterParam;
@@ -24,6 +26,7 @@ import androidx.core.app.ActivityCompat;
 public class IMRequest {
     public  Map<String, RouterParam> routerParamMap;
     private Context                  mContext;
+    private Handler mHandler;
 
     public static IMRequest getInstance() {
         return SingleIMRequest.imRequest;
@@ -32,6 +35,7 @@ public class IMRequest {
     public void inits(Application application) {
         mContext = application;
         loadAllRouter();
+        mHandler=new Handler(Looper.getMainLooper());
     }
 
     public IMData build(String path) {
@@ -49,14 +53,21 @@ public class IMRequest {
         return imData;
     }
 
-    public void start(Context context, IMData imData) {
-        Context aContext = context == null ? mContext : context;
+    public void start(Context context, final IMData imData) {
+        final Context aContext = context == null ? mContext : context;
         RouterParam routerParam = imData.getParam();
         switch (routerParam.getTarget_type()) {
             case RouterParam.TARGET_ACTIVITY:
-                Intent intent = new Intent(aContext, routerParam.getTargetObject());
+                Log.i("MDY", "start="+routerParam.getTargetObject());
+                final Intent intent = new Intent(aContext, routerParam.getTargetObject());
                 intent.putExtras(imData.getBundle());
-                startActivity(aContext, intent, imData);
+
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(aContext, intent, imData);
+                    }
+                });
                 break;
             case RouterParam.TARGET_FRAGMENT:
                 break;

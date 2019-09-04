@@ -3,10 +3,16 @@
     package="com.test.android">
 
     <application>
+        <activity android:name=".Main4Activity"></activity>
+        <activity android:name=".Main2Activity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".TEStActivity"
+            android:label="@string/title_activity_test"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MobileActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

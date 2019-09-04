@@ -28,9 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void btn1(View view) {
 
-        IMRouter.getInstance().build(this, "/test/activity2")
-                .withRequestCode(12)
-                .withInt("INT", 999999)
+        IMRouter.getInstance().build("/mobile/main4/activity")
                 .start();
     }
 
@@ -38,10 +36,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 12) {
+        /*if (requestCode == 12) {
             int nums = data.getIntExtra("INT_1", 0);
             text_result.setText("返回数字=" + nums);
 
-        }
+        }*/
     }
 }
