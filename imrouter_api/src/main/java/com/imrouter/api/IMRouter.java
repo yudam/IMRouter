@@ -30,8 +30,8 @@ public class IMRouter {
         return imRouter;
     }
 
-    public static void initIndex(Application application, Map<String, RouterParam> paramMap) {
-        IMRequest.getInstance().inits(application, paramMap);
+    public static void initIndex(Application application) {
+        IMRequest.getInstance().inits(application);
     }
 
     public IMData build(String path) {

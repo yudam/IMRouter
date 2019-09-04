@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.imrouter.annotation.Router;
 
-@Router(path = "test/activity2")
+@Router(path = "/test/activity2")
 public class Main2Activity extends AppCompatActivity {
 
     @Override

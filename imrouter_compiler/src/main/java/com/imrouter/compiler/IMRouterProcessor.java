@@ -7,11 +7,14 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +30,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.sound.midi.VoiceStatus;
 
 /**
  * User: maodayu
@@ -40,6 +44,7 @@ public class IMRouterProcessor extends AbstractProcessor {
     private Types    typeUtils;
 
     private Map<String, RouterParam> paramMap = new HashMap<>();
+    private List<String>             pathList = new LinkedList<>();
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -66,20 +71,20 @@ public class IMRouterProcessor extends AbstractProcessor {
         String options = processingEnv.getOptions().get("IMROUTER");
         int lastIndex = options.lastIndexOf(".");
         String packageName = options.substring(0, lastIndex);
-        String className = options.substring(lastIndex + 1);
-        looger("size="+elements.size());
-
+        String className = options.substring(lastIndex + 1) + "$Root";
+        String groupName = className + "$Group";
 
         if (elements != null && elements.size() > 0) {
-            analyzeElementInfo(roundEnvironment, packageName, className);
+            analyzeElementInfo(roundEnvironment, packageName, className, groupName);
             return true;
         }
         return false;
     }
 
 
-    private void analyzeElementInfo(RoundEnvironment roundEnvironment, String packageName, String className) {
+    private void analyzeElementInfo(RoundEnvironment roundEnvironment, String packageName, String className, String groupName) {
         paramMap.clear();
+        pathList.clear();
         for (Element element : roundEnvironment.getElementsAnnotatedWith(Router.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement typeElement = (TypeElement) element;
@@ -91,12 +96,13 @@ public class IMRouterProcessor extends AbstractProcessor {
                 RouterParam routerParam = new RouterParam(router.path(), typeElement,
                         typeElement.getQualifiedName().toString(), isSubType);
                 paramMap.put(router.path(), routerParam);
+                pathList.add(router.path());
             }
         }
-        generateCodes(packageName, className);
+        generateCodes(packageName, className, groupName);
     }
 
-    private void generateCodes(String packageName, String className) {
+    private void generateCodes(String packageName, String className, String groupName) {
 
         ClassName string = ClassName.get(String.class);
         ClassName routerparam = ClassName.get(RouterParam.class);
@@ -107,26 +113,67 @@ public class IMRouterProcessor extends AbstractProcessor {
         FieldSpec fieldSpec = FieldSpec.builder(parameterizedTypeName, "paramMap", Modifier.PUBLIC,
                 Modifier.STATIC).initializer("new $T()", hashMap).build();
 
+
         MethodSpec.Builder builder = MethodSpec.methodBuilder("loadInfo")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
                 .returns(parameterizedTypeName);
 
         for (RouterParam routerParam : paramMap.values()) {
             ClassName params = ClassName.get(RouterParam.class);
             ClassName target = ClassName.get(routerParam.getTargetElement());
-            builder.addStatement("paramMap.put($S,$T.build($S,$T.class,$S,$L))", routerParam.getRouterPath(),
-                    params, routerParam.getRouterPath(), target, routerParam.getTargetSite(), routerParam.getTarget_type());
+            builder.addStatement("paramMap.put($S,$T.build($S,$T.class,$S,$L,$S))", routerParam.getRouterPath(),
+                    params, routerParam.getRouterPath(), target, routerParam.getTargetSite(),
+                    routerParam.getTarget_type(), groupName);
         }
 
         builder.addStatement("return paramMap");
-        TypeSpec typeSpec = TypeSpec.classBuilder(className)
+
+        TypeElement rootElement = elementUtils.getTypeElement("com.imrouter.api.logistics.IRouterRoot");
+        TypeSpec rootType = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC)
+                .addSuperinterface(ClassName.get(rootElement))
                 .addField(fieldSpec)
                 .addMethod(builder.build())
                 .build();
 
         try {
-            JavaFile.builder(packageName, typeSpec).build().writeTo(mFiler);
+            JavaFile.builder(packageName, rootType).build().writeTo(mFiler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        TypeElement typeElement = elementUtils.getTypeElement("com.imrouter.api.logistics.IRouterGroup");
+        TypeElement wareElement = elementUtils.getTypeElement("com.imrouter.api.logistics.WareHouse");
+        ClassName rootName = ClassName.get(packageName, className);
+        MethodSpec groupSpec = MethodSpec.methodBuilder("initGroup")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addAnnotation(Override.class)
+                .addStatement("$T.put($S,$S,$T.class)", wareElement, groupName,
+                        packageName + "." + className, rootName)
+                .build();
+
+
+        MethodSpec.Builder groupPath = MethodSpec.methodBuilder("initPath")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addAnnotation(Override.class);
+
+        for (int i = 0; i < pathList.size(); i++) {
+            groupPath.addStatement("$T.put($S,$S)", wareElement, pathList.get(i), groupName);
+        }
+
+
+        TypeSpec groupType = TypeSpec.classBuilder(groupName)
+                .addModifiers(Modifier.PUBLIC)
+                .addSuperinterface(ClassName.get(typeElement))
+                .addMethod(groupSpec)
+                .addMethod(groupPath.build())
+                .build();
+
+        try {
+            JavaFile.builder(packageName, groupType).build().writeTo(mFiler);
         } catch (IOException e) {
             e.printStackTrace();
         }

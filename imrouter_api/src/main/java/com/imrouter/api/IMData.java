@@ -4,6 +4,11 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.imrouter.annotation.RouterParam;
+import com.imrouter.api.logistics.IRouterRoot;
+import com.imrouter.api.logistics.WareHouse;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 /**
  * User: maodayu
@@ -13,27 +18,28 @@ import com.imrouter.annotation.RouterParam;
 public class IMData {
 
     private RouterParam mParam;
+    private String      rootPath;
     private int         requestCode;
     private Bundle      mBundle;
 
     private Context context;
 
-    public IMData(RouterParam routerParam) {
-        this(routerParam, 1);
+    public IMData(String path) {
+        this(path, 1);
     }
 
-    public IMData(RouterParam routerParam, int requestCode) {
-        this(null,routerParam,requestCode);
+    public IMData(String path, int requestCode) {
+        this(null, path, requestCode);
     }
 
-    public IMData(Context context,RouterParam routerParam, int requestCode){
-        this.context=context;
-        this.mParam = routerParam;
+    public IMData(Context context, String rootPath, int requestCode) {
+        this.context = context;
+        this.rootPath = rootPath;
         this.requestCode = requestCode;
         mBundle = new Bundle();
     }
 
-    public IMData withRequestCode(int requestCode){
+    public IMData withRequestCode(int requestCode) {
         this.requestCode = requestCode;
         return this;
     }
@@ -44,7 +50,18 @@ public class IMData {
     }
 
     public void start() {
-        IMRouter.getInstance().start(context,this);
+        WareHouse wareHouse = WareHouse.loadWareHouse(rootPath);
+        if (wareHouse == null) {
+            //TODO 重新遍历，或者抛出异常
+        } else {
+            try {
+                IRouterRoot iRouterRoot = wareHouse.loadTarget().getConstructor().newInstance();
+                Map<String, RouterParam> paramMap = iRouterRoot.loadInfo();
+                mParam = paramMap.get(rootPath);
+            } catch (Exception e) {
+            }
+        }
+        IMRouter.getInstance().start(context, this);
     }
 
     public RouterParam getParam() {

@@ -18,6 +18,7 @@ public class RouterParam {
     private             TypeElement targetElement;
     private             Class<?>    targetObject;
     private             int         target_type;
+    private             String      groupName;
 
     public RouterParam(String routerPath, TypeElement targetElement, String targetSite, int target_type) {
         this.routerPath = routerPath;
@@ -26,15 +27,16 @@ public class RouterParam {
         this.target_type = target_type;
     }
 
-    public RouterParam(String routerPath, Class<?> targetObject, String targetSite, int target_type) {
+    public RouterParam(String routerPath, Class<?> targetObject, String targetSite, int target_type, String groupName) {
         this.routerPath = routerPath;
         this.targetObject = targetObject;
         this.targetSite = targetSite;
         this.target_type = target_type;
+        this.groupName = groupName;
     }
 
-    public static RouterParam build(String routerPath, Class<?> targetObject, String targetSite, int target_type) {
-        return new RouterParam(routerPath, targetObject, targetSite, target_type);
+    public static RouterParam build(String routerPath, Class<?> targetObject, String targetSite, int target_type, String groupName) {
+        return new RouterParam(routerPath, targetObject, targetSite, target_type, groupName);
     }
 
     public String getRouterPath() {
@@ -57,6 +59,10 @@ public class RouterParam {
         return targetObject;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
     @Override
     public String toString() {
         return "RouterParam{" +
@@ -65,6 +71,7 @@ public class RouterParam {
                 ", targetElement=" + targetElement +
                 ", targetObject=" + targetObject +
                 ", target_type=" + target_type +
+                ", groupName='" + groupName + '\'' +
                 '}';
     }
 }

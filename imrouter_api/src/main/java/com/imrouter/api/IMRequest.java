@@ -7,8 +7,12 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.imrouter.annotation.RouterParam;
+import com.imrouter.api.logistics.IRouterGroup;
+import com.imrouter.api.logistics.WareHouse;
+import com.imrouter.api.utils.ClassUtils;
 
 import java.util.Map;
+import java.util.Set;
 
 import androidx.core.app.ActivityCompat;
 
@@ -18,36 +22,30 @@ import androidx.core.app.ActivityCompat;
  * Time: 15:35
  */
 public class IMRequest {
-    public Map<String, RouterParam> routerParamMap;
-    private Context mContext;
+    public  Map<String, RouterParam> routerParamMap;
+    private Context                  mContext;
 
     public static IMRequest getInstance() {
         return SingleIMRequest.imRequest;
     }
 
-    public void inits(Application application, Map<String, RouterParam> paramMap) {
+    public void inits(Application application) {
         mContext = application;
-        routerParamMap = paramMap;
+        loadAllRouter();
     }
 
     public IMData build(String path) {
-        RouterParam routerParam = routerParamMap.get(path);
-        IMData imData = new IMData(routerParam, 1);
+        IMData imData = new IMData(path, 1);
         return imData;
     }
 
     public IMData build(Context context, String path) {
-        RouterParam routerParam = routerParamMap.get(path);
-        if (routerParam == null) {
-            //TODO 未匹配到指定页面，抛出异常或提示
-        }
-        IMData imData = new IMData(context, routerParam, 1);
+        IMData imData = new IMData(context, path, 1);
         return imData;
     }
 
     public IMData build(String path, int requestCode) {
-        RouterParam routerParam = routerParamMap.get(path);
-        IMData imData = new IMData(routerParam, requestCode);
+        IMData imData = new IMData(path, requestCode);
         return imData;
     }
 
@@ -81,7 +79,23 @@ public class IMRequest {
         }
     }
 
+    private void loadAllRouter() {
+        try {
+            Set<String> packageSet = ClassUtils.getFileNameByPackageName(mContext, "com.imrouter.api");
+            for (String className : packageSet) {
+                if (className.endsWith("$Group")) {
+                    IRouterGroup iRouterGroup = (IRouterGroup) (Class.forName(className).getConstructor().newInstance());
+                    iRouterGroup.initGroup();
+                    iRouterGroup.initPath();
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
     public static class SingleIMRequest {
         public static IMRequest imRequest = new IMRequest();
     }
+
 }

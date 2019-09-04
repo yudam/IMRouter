@@ -14,4 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Router {
     String path() default "";
+
+    String group() default "";
 }
