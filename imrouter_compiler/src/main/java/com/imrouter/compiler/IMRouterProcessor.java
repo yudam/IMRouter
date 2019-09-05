@@ -103,16 +103,19 @@ public class IMRouterProcessor extends AbstractProcessor {
     }
 
     private void generateCodes(String packageName, String className, String groupName) {
-
+        TypeElement typeElement = elementUtils.getTypeElement("com.imrouter.api.logistics.IRouterGroup");
+        TypeElement rootElement = elementUtils.getTypeElement("com.imrouter.api.logistics.IRouterRoot");
+        TypeElement wareElement = elementUtils.getTypeElement("com.imrouter.api.logistics.WareHouse");
         ClassName string = ClassName.get(String.class);
         ClassName routerparam = ClassName.get(RouterParam.class);
         ClassName map = ClassName.get(Map.class);
         ClassName hashMap = ClassName.get(HashMap.class);
+        ClassName rootName = ClassName.get(packageName, className);
+
         ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(map, string, routerparam);
 
         FieldSpec fieldSpec = FieldSpec.builder(parameterizedTypeName, "paramMap", Modifier.PUBLIC,
                 Modifier.STATIC).initializer("new $T()", hashMap).build();
-
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("loadInfo")
                 .addModifiers(Modifier.PUBLIC)
@@ -129,7 +132,6 @@ public class IMRouterProcessor extends AbstractProcessor {
 
         builder.addStatement("return paramMap");
 
-        TypeElement rootElement = elementUtils.getTypeElement("com.imrouter.api.logistics.IRouterRoot");
         TypeSpec rootType = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(ClassName.get(rootElement))
@@ -143,9 +145,7 @@ public class IMRouterProcessor extends AbstractProcessor {
             e.printStackTrace();
         }
 
-        TypeElement typeElement = elementUtils.getTypeElement("com.imrouter.api.logistics.IRouterGroup");
-        TypeElement wareElement = elementUtils.getTypeElement("com.imrouter.api.logistics.WareHouse");
-        ClassName rootName = ClassName.get(packageName, className);
+        //创建分组
         MethodSpec groupSpec = MethodSpec.methodBuilder("initGroup")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class)

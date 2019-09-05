@@ -1,13 +1,13 @@
-package com.imrouter.api;
+package com.imrouter.api.core;
 
 import android.content.Context;
 import android.os.Bundle;
 
 import com.imrouter.annotation.RouterParam;
+import com.imrouter.api.IMRouter;
 import com.imrouter.api.logistics.IRouterRoot;
 import com.imrouter.api.logistics.WareHouse;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -20,6 +20,7 @@ public class IMData {
     private RouterParam mParam;
     private String      rootPath;
     private int         requestCode;
+    private int         mFlags = -1;
     private Bundle      mBundle;
 
     private Context context;
@@ -44,6 +45,12 @@ public class IMData {
         return this;
     }
 
+    public IMData withFlag(int flags) {
+        mFlags = flags;
+        return this;
+    }
+
+
     public IMData withInt(String key, int value) {
         mBundle.putInt(key, value);
         return this;
@@ -59,6 +66,7 @@ public class IMData {
                 Map<String, RouterParam> paramMap = iRouterRoot.loadInfo();
                 mParam = paramMap.get(rootPath);
             } catch (Exception e) {
+
             }
         }
         IMRouter.getInstance().start(context, this);
@@ -76,13 +84,8 @@ public class IMData {
         return mBundle;
     }
 
-    @Override
-    public String toString() {
-        return "IMData{" +
-                "mParam=" + mParam +
-                ", requestCode=" + requestCode +
-                ", mBundle=" + mBundle +
-                ", context=" + context +
-                '}';
+    public int getFlags() {
+        return mFlags;
     }
+
 }

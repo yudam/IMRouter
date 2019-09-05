@@ -21,25 +21,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         text_result = findViewById(R.id.text_result);
-
         IMRouter.initIndex(getApplication());
     }
 
 
     public void btn1(View view) {
 
-        IMRouter.getInstance().build("/mobile/main4/activity")
+        IMRouter.getInstance().build("/mobile/test/activity")
+                .withFlag(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 .start();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        /*if (requestCode == 12) {
-            int nums = data.getIntExtra("INT_1", 0);
-            text_result.setText("返回数字=" + nums);
-
-        }*/
     }
+
+    /**
+     *module之间的资源文件不可以重复，否则无法跳转
+     *
+     */
 }

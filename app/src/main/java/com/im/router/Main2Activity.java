@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.imrouter.annotation.Router;
 
 @Router(path = "/test/activity2")
-public class Main3Activity extends AppCompatActivity {
+public class Main2Activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

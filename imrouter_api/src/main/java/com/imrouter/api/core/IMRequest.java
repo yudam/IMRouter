@@ -1,4 +1,4 @@
-package com.imrouter.api;
+package com.imrouter.api.core;
 
 import android.app.Activity;
 import android.app.Application;
@@ -6,14 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.imrouter.annotation.RouterParam;
 import com.imrouter.api.logistics.IRouterGroup;
-import com.imrouter.api.logistics.WareHouse;
 import com.imrouter.api.utils.ClassUtils;
 
-import java.util.Map;
 import java.util.Set;
 
 import androidx.core.app.ActivityCompat;
@@ -24,8 +21,7 @@ import androidx.core.app.ActivityCompat;
  * Time: 15:35
  */
 public class IMRequest {
-    public  Map<String, RouterParam> routerParamMap;
-    private Context                  mContext;
+    private Context mContext;
     private Handler mHandler;
 
     public static IMRequest getInstance() {
@@ -35,7 +31,7 @@ public class IMRequest {
     public void inits(Application application) {
         mContext = application;
         loadAllRouter();
-        mHandler=new Handler(Looper.getMainLooper());
+        mHandler = new Handler(Looper.getMainLooper());
     }
 
     public IMData build(String path) {
@@ -58,10 +54,15 @@ public class IMRequest {
         RouterParam routerParam = imData.getParam();
         switch (routerParam.getTarget_type()) {
             case RouterParam.TARGET_ACTIVITY:
-                Log.i("MDY", "start="+routerParam.getTargetObject());
                 final Intent intent = new Intent(aContext, routerParam.getTargetObject());
                 intent.putExtras(imData.getBundle());
-
+                //application中的context需要添加FLAG_ACTIVITY_NEW_TASK标记
+                if (!(aContext instanceof Activity)) {
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                }
+                if (imData.getFlags() != -1) {
+                    intent.setFlags(imData.getFlags());
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {

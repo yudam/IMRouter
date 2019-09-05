@@ -8,10 +8,6 @@ import androidx.annotation.NonNull;
 
 /**
  * 线程池工厂类
- *
- * @author zhilong <a href="mailto:zhilong.liu@aliyun.com">Contact me.</a>
- * @version 1.0
- * @since 15/12/25 上午10:51
  */
 public class DefaultThreadFactory implements ThreadFactory {
     private static final AtomicInteger poolNumber = new AtomicInteger(1);

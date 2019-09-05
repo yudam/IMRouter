@@ -10,9 +10,22 @@ import java.util.HashMap;
 public class WareHouse {
 
 
-    public static HashMap<String, WareHouse> groupMap     = new HashMap<>();
-    public static HashMap<String, String>    groupNameMap = new HashMap<>();
+    /**
+     * key:对应组名
+     * value：WareHouse包含组内的rootClass
+     */
+    public static HashMap<String, WareHouse> groupMap = new HashMap<>();
 
+    /**
+     * key:对应每一个路径
+     * value：对应路径所属的WareHouseImpl的组别
+     */
+    public static HashMap<String, String> groupNameMap = new HashMap<>();
+
+    /**
+     * key:注解生成的组名
+     * value:WareHouseImpl包APT生成类的标准名称、class
+     */
     public HashMap<String, WareHouseImpl> rootClass = new HashMap<>();
 
     private String routerGroupName;
@@ -41,7 +54,7 @@ public class WareHouse {
         }
     }
 
-    //根据组名获取指定的WareHouse
+    //根据路由获取组别，根据组别获取具体的路由映射包裹类WareHouse
     public static WareHouse loadWareHouse(String rootPath) {
         if (groupNameMap.get(rootPath) == null) {
             return null;
@@ -57,7 +70,7 @@ public class WareHouse {
         rootClass.put(routerGroupName, new WareHouseImpl(routerClassName, targetObject));
     }
 
-    //根据指定的root名 获取IRouterRoot对象
+    //根据组名获取WareHouseImpl，在获取WareHouseImpl内的具体路由映射类
     public Class<? extends IRouterRoot> loadTarget() {
         return rootClass.get(routerGroupName).getTargetObject();
     }

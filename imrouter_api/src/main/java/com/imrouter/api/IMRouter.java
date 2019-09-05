@@ -3,9 +3,8 @@ package com.imrouter.api;
 import android.app.Application;
 import android.content.Context;
 
-import com.imrouter.annotation.RouterParam;
-
-import java.util.Map;
+import com.imrouter.api.core.IMData;
+import com.imrouter.api.core.IMRequest;
 
 /**
  * User: maodayu
