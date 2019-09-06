@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.imrouter.annotation.RouterParam;
 import com.imrouter.api.IMRouter;
+import com.imrouter.api.exception.QueryFailedException;
 import com.imrouter.api.logistics.IRouterRoot;
 import com.imrouter.api.logistics.WareHouse;
 
@@ -59,7 +60,7 @@ public class IMData {
     public void start() {
         WareHouse wareHouse = WareHouse.loadWareHouse(rootPath);
         if (wareHouse == null) {
-            //TODO 重新遍历，或者抛出异常
+            throw new QueryFailedException("The specified path was not queried！");
         } else {
             try {
                 IRouterRoot iRouterRoot = wareHouse.loadTarget().getConstructor().newInstance();

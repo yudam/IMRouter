@@ -86,7 +86,7 @@ public class IMRequest {
             if (context instanceof Activity) {
                 ActivityCompat.startActivityForResult((Activity) context, intent, imData.getRequestCode(), null);
             } else {
-                //TODO 抛出异常，提示
+                throw new RuntimeException("context must be Activity!");
             }
         }
     }
@@ -102,7 +102,7 @@ public class IMRequest {
                 }
             }
         } catch (Exception e) {
-
+            throw new RuntimeException("初始化异常");
         }
     }
 
